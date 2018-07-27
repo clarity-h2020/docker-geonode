@@ -1,10 +1,8 @@
-.env*
-!.env.sample
-/postgresql_data
-
 # netbeans
 /nbproject/private/
 /desktop.ini
 /icon.ico
-*.pid
-*.out
+
+/db.env
+/celery.env
+/django.env

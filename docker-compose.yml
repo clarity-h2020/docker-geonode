@@ -1,10 +1,11 @@
-version: '2.2'
+version: '3'
+     
 services:
 
   db:
     image: geonode/postgis:9.6
     restart: unless-stopped
-    container_name: db4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}_postgis
     stdin_open: true
     # tty: true
     labels:
@@ -15,6 +16,8 @@ services:
       - dbbackups:/pg_backups
     env_file:
       - ./scripts/docker/env/production/db.env
+    ports:
+      - "0.0.0.0:${POSTGRES_PORT:-54323}:5432"
 
   # elasticsearch:
   #   image: elasticsearch
@@ -29,7 +32,7 @@ services:
   rabbitmq:
     image: rabbitmq
     restart: unless-stopped
-    container_name: rabbitmq4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}_rabbitmq
     stdin_open: true
     tty: true
     labels:
@@ -39,7 +42,7 @@ services:
   celery:
     restart: unless-stopped
     image: geonode/geonode:latest
-    container_name: celery4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}_celery
     stdin_open: true
     # tty: true
     labels:
@@ -53,12 +56,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
-      - ./scripts/docker/env/production/celery.env
+      - ./celery.env
 
   data-dir-conf:
     image: geonode/geoserver_data:latest
     restart: on-failure
-    container_name: gsconf4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}_gsconf
     labels:
         org.geonode.component: conf
         org.geonode.instance.name: geonode
@@ -69,7 +72,7 @@ services:
   geoserver:
     image: geonode/geoserver:latest
     restart: unless-stopped
-    container_name: geoserver4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}geoserver
     stdin_open: true
     # tty: true
     labels:
@@ -82,9 +85,10 @@ services:
       - data-dir-conf
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - geoserver-data-dir:/geoserver_data/data
+    volumes_from:
+      - data-dir-conf  
     env_file:
-      - ./scripts/docker/env/production/geoserver.env
+      - ./geoserver.env
 
   django:
     restart: unless-stopped
@@ -103,14 +107,15 @@ services:
     command: uwsgi --ini uwsgi.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - geoserver-data-dir:/geoserver_data/data
+    volumes_from:
+      - data-dir-conf  
     env_file:
-      - ./scripts/docker/env/production/django.env
+      - ./django.env
 
   geonode:
     image: geonode/nginx:geoserver
     restart: unless-stopped
-    container_name: nginx4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx
     stdin_open: true
     # tty: true
     labels:
@@ -121,12 +126,15 @@ services:
       - celery
       - geoserver
     ports:
-      - "80:80"
+      - "8088:80"
 
 volumes:
   geoserver-data-dir:
-    name: ${COMPOSE_PROJECT_NAME}-gsdatadir
+    name: ${COMPOSE_PROJECT_NAME}_gsdatadir
+    driver: local
   dbdata:
-    name: ${COMPOSE_PROJECT_NAME}-dbdata
+    name: ${COMPOSE_PROJECT_NAME}_dbdata
+    driver: local
   dbbackups:
-    name: ${COMPOSE_PROJECT_NAME}-dbbackups
+    name: ${COMPOSE_PROJECT_NAME}_dbbackups
+    driver: local
