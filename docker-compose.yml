@@ -5,19 +5,19 @@ services:
   db:
     image: geonode/postgis:9.6
     restart: unless-stopped
-    container_name: ${COMPOSE_PROJECT_NAME}_postgis
+    container_name: ${COMPOSE_PROJECT_NAME}-postgis
     stdin_open: true
     # tty: true
     labels:
         org.geonode.component: db
         org.geonode.instance.name: geonode
     volumes:
-      - dbdata:/var/lib/postgresql/data
-      - dbbackups:/pg_backups
+      - ${COMPOSE_PROJECT_NAME}_dbdata:/var/lib/postgresql/data
+      - ${COMPOSE_PROJECT_NAME}_dbbackups:/pg_backups
     env_file:
       - ./scripts/docker/env/production/db.env
     ports:
-      - "0.0.0.0:${POSTGRES_PORT:-54323}:5432"
+      - "0.0.0.0:${POSTGRES_PORT:-5432}:5432"
 
   # elasticsearch:
   #   image: elasticsearch
@@ -32,7 +32,7 @@ services:
   rabbitmq:
     image: rabbitmq
     restart: unless-stopped
-    container_name: ${COMPOSE_PROJECT_NAME}_rabbitmq
+    container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
     stdin_open: true
     tty: true
     labels:
@@ -42,7 +42,7 @@ services:
   celery:
     restart: unless-stopped
     image: geonode/geonode:latest
-    container_name: ${COMPOSE_PROJECT_NAME}_celery
+    container_name: ${COMPOSE_PROJECT_NAME}-celery
     stdin_open: true
     # tty: true
     labels:
@@ -61,18 +61,18 @@ services:
   data-dir-conf:
     image: geonode/geoserver_data:latest
     restart: on-failure
-    container_name: ${COMPOSE_PROJECT_NAME}_gsconf
+    container_name: ${COMPOSE_PROJECT_NAME}-gsconf
     labels:
         org.geonode.component: conf
         org.geonode.instance.name: geonode
     command: /bin/true
     volumes:
-      - geoserver-data-dir:/geoserver_data/data
+      - ${COMPOSE_PROJECT_NAME}_gsdatadir:/geoserver_data/data
 
   geoserver:
     image: geonode/geoserver:latest
     restart: unless-stopped
-    container_name: ${COMPOSE_PROJECT_NAME}geoserver
+    container_name: ${COMPOSE_PROJECT_NAME}-geoserver
     stdin_open: true
     # tty: true
     labels:
@@ -93,7 +93,7 @@ services:
   django:
     restart: unless-stopped
     image: geonode/geonode:latest
-    container_name: django4${COMPOSE_PROJECT_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME}-django4
     stdin_open: true
     # tty: true
     labels:
@@ -115,7 +115,7 @@ services:
   geonode:
     image: geonode/nginx:geoserver
     restart: unless-stopped
-    container_name: ${COMPOSE_PROJECT_NAME}_nginx
+    container_name: ${COMPOSE_PROJECT_NAME}-nginx
     stdin_open: true
     # tty: true
     labels:
@@ -138,3 +138,8 @@ volumes:
   dbbackups:
     name: ${COMPOSE_PROJECT_NAME}_dbbackups
     driver: local
+    
+networks:
+  default:
+    external:
+      name: ${NETWORK:-clarity}
