@@ -1,4 +1,4 @@
-version: '3'
+version: '3.6'
      
 services:
 
@@ -12,10 +12,10 @@ services:
         org.geonode.component: db
         org.geonode.instance.name: geonode
     volumes:
-      - ${COMPOSE_PROJECT_NAME}_dbdata:/var/lib/postgresql/data
-      - ${COMPOSE_PROJECT_NAME}_dbbackups:/pg_backups
+      - dbdata:/var/lib/postgresql/data
+      - dbbackups:/pg_backups
     env_file:
-      - ./scripts/docker/env/production/db.env
+      - ./db.env
     ports:
       - "0.0.0.0:${POSTGRES_PORT:-5432}:5432"
 
@@ -67,7 +67,7 @@ services:
         org.geonode.instance.name: geonode
     command: /bin/true
     volumes:
-      - ${COMPOSE_PROJECT_NAME}_gsdatadir:/geoserver_data/data
+      - gsdata:/geoserver_data/data
 
   geoserver:
     image: geonode/geoserver:latest
@@ -85,8 +85,7 @@ services:
       - data-dir-conf
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    volumes_from:
-      - data-dir-conf  
+      - gsdata:/geoserver_data/data
     env_file:
       - ./geoserver.env
 
@@ -107,8 +106,7 @@ services:
     command: uwsgi --ini uwsgi.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    volumes_from:
-      - data-dir-conf  
+      - gsdata:/geoserver_data/data
     env_file:
       - ./django.env
 
@@ -129,8 +127,8 @@ services:
       - "8088:80"
 
 volumes:
-  geoserver-data-dir:
-    name: ${COMPOSE_PROJECT_NAME}_gsdatadir
+  gsdata:
+    name: ${COMPOSE_PROJECT_NAME}_gsdata
     driver: local
   dbdata:
     name: ${COMPOSE_PROJECT_NAME}_dbdata
