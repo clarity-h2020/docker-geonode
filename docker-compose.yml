@@ -88,11 +88,15 @@ services:
       - gsdata:/geoserver_data/data
     env_file:
       - ./geoserver.env
+    environment:
+        VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
+        LETSENCRYPT_HOST: ${GEOSERVER_LETSENCRYPT_HOST}
+        LETSENCRYPT_EMAIL: ${GEOSERVER_LETSENCRYPT_EMAIL}
 
   django:
     restart: unless-stopped
     image: geonode/geonode:latest
-    container_name: ${COMPOSE_PROJECT_NAME}-django4
+    container_name: ${COMPOSE_PROJECT_NAME}-django
     stdin_open: true
     # tty: true
     labels:
@@ -123,8 +127,12 @@ services:
       - django
       - celery
       - geoserver
-    ports:
-      - "8088:80"
+    #ports:
+    #  - "80:80"
+    environment:
+        VIRTUAL_HOST: ${GEONODE_VIRTUAL_HOST}
+        LETSENCRYPT_HOST: ${GEONODE_LETSENCRYPT_HOST}
+        LETSENCRYPT_EMAIL: ${GEONODE_LETSENCRYPT_EMAIL}
 
 volumes:
   gsdata:
