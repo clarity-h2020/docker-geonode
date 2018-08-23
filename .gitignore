@@ -6,3 +6,6 @@
 /db.env
 /celery.env
 /django.env
+
+/ext_data/*
+!readme.md
