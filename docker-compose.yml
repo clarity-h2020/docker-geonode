@@ -12,8 +12,12 @@ services:
         org.geonode.component: db
         org.geonode.instance.name: geonode
     volumes:
-      - dbdata:/var/lib/postgresql/data
-      - dbbackups:/pg_backups
+      - type: volume
+        source: dbdata
+        target: /var/lib/postgresql/data
+      - type: volume
+        source: dbbackups
+        target: /pg_backups
     env_file:
       - ./db.env
     ports:
@@ -54,7 +58,9 @@ services:
       - rabbitmq
     command: celery worker --app=geonode.celery_app:app -B -l INFO
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
     env_file:
       - ./celery.env
 
@@ -67,7 +73,9 @@ services:
         org.geonode.instance.name: geonode
     command: /bin/true
     volumes:
-      - gsdata:/geoserver_data/data
+      - type: volume
+        source: gsdata
+        target: /geoserver_data/data
 
   geoserver:
     image: geonode/geoserver:latest
@@ -84,8 +92,15 @@ services:
       - rabbitmq
       - data-dir-conf
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - gsdata:/geoserver_data/data
+      - type: volume
+        source: gsdata
+        target: /geoserver_data/data
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: ./ext_data
+        target: /geoserver_data/ext_data
     env_file:
       - ./geoserver.env
     environment:
@@ -109,8 +124,12 @@ services:
     # command: paver start_django -b 0.0.0.0:8000
     command: uwsgi --ini uwsgi.ini
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - gsdata:/geoserver_data/data
+      - type: volume
+        source: gsdata
+        target: /geoserver_data/data
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
     env_file:
       - ./django.env
 
