@@ -93,13 +93,16 @@ services:
       - data-dir-conf
     volumes:
       - type: volume
+        source: webapps
+        target: /usr/local/tomcat/webapps
+      - type: volume
         source: gsdata
         target: /geoserver_data/data
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
       - type: bind
-        source: ./ext_data
+        source: /data
         target: /geoserver_data/ext_data
     env_file:
       - ./geoserver.env
@@ -154,6 +157,9 @@ services:
         LETSENCRYPT_EMAIL: ${GEONODE_LETSENCRYPT_EMAIL}
 
 volumes:
+  webapps:
+    name: ${COMPOSE_PROJECT_NAME}_tomcat_webapps
+    driver: local
   gsdata:
     name: ${COMPOSE_PROJECT_NAME}_gsdata
     driver: local
