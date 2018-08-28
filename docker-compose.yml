@@ -104,6 +104,9 @@ services:
       - type: bind
         source: /data
         target: /geoserver_data/ext_data
+      - type: bind
+        source: /data
+        target: /geoserver_data/data/import
     env_file:
       - ./geoserver.env
     environment:
@@ -133,6 +136,9 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+      - type: bind
+        source: /data
+        target: /geoserver_data/data/import
     env_file:
       - ./django.env
 
