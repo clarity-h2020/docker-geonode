@@ -20,8 +20,8 @@ services:
         target: /pg_backups
     env_file:
       - ./db.env
-    ports:
-      - "0.0.0.0:${POSTGRES_PORT:-5432}:5432"
+  #  ports:
+  #    - "0.0.0.0:${POSTGRES_PORT:-5432}:5432"
 
   # elasticsearch:
   #   image: elasticsearch
