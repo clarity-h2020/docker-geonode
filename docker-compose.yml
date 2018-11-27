@@ -109,10 +109,10 @@ services:
         target: /geoserver_data/data/import
     env_file:
       - ./geoserver.env
-    environment:
-        VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
-        LETSENCRYPT_HOST: ${GEOSERVER_LETSENCRYPT_HOST}
-        LETSENCRYPT_EMAIL: ${GEOSERVER_LETSENCRYPT_EMAIL}
+    #environment:
+    #    VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
+    #    LETSENCRYPT_HOST: ${GEOSERVER_LETSENCRYPT_HOST}
+    #    LETSENCRYPT_EMAIL: ${GEOSERVER_LETSENCRYPT_EMAIL}
 
   django:
     restart: unless-stopped
